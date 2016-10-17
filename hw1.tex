@@ -1,0 +1,496 @@
+\newcount\draft\draft=1 % set to 0 for "publication"
+
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage[plain]{fullpage}
+
+\usepackage{natbib}
+\bibliographystyle{abbrv}
+
+\usepackage{enumitem}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage{multicol}
+\usepackage{graphicx}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=BrickRed,
+    citecolor=BrickRed,
+    urlcolor=BrickRed
+}
+
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+
+
+\usepackage[linesnumbered]{algorithm2e}
+\let\oldnl\nl
+\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}
+
+\setlength\parindent{0pt}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem*{remark}{Remark}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{fact}{Fact}
+
+% TikZ ---------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usetikzlibrary{snakes}
+\usetikzlibrary{trees}
+\tikzstyle{vertex}=[circle,fill=black!0,minimum size=4pt,inner sep=0pt]
+\tikzstyle{smallvertex}=[circle,fill=black!0,minimum size=3pt,inner sep=0pt]
+
+\usepackage{cleveref} % MUST BE LOADED LAST
+
+\title{Advanced Algorithms for Data Science \\ \textsc{Homework 1}}
+\author{Krikun Gosha}
+\date{2016-10-07}
+
+\begin{document}
+
+\maketitle
+
+\section{Depth-first and Bread-first search}
+
+\begin{theorem}
+  In undirected connected graph $G=(V, E)$,
+  if DFS and BFS produce same predecessor subgraph $G_\pi$,
+  then $G=G_\pi$ ($V=V_\pi$, $E=E_\pi$).
+\end{theorem}
+
+
+\begin{proof}
+  Firstly lets consider BFS \cite[page 595]{introtoalg} and DFS \cite[page 604]{introtoalg} algorithms.
+
+\begin{multicols}{2}
+
+\IncMargin{1em}
+\begin{algorithm}[H]
+  \SetAlgoNoEnd\SetAlgoNoLine
+  \SetNlSkip{1.5em}
+  \DontPrintSemicolon
+  \SetKwProg{Fn}{Function}{}{}
+
+  \nonl \textsc{BFS}$(G,s)$
+
+  \ForEach{vertex $u \in G.V - \{s\}$}{
+    $u.color = $ \textsc{white}\;
+    $u.d = \infty$\;
+    $u.\pi = nil$\;
+  }
+
+  $s.color = $ \textsc{gray}\;
+  $s.d = 0$\;
+  $s.\pi = nil$\;
+
+  $Q = \emptyset$\;
+  \textsc{Enqueue} $(Q,s)$\;
+  \While {$Q \neq \emptyset$}{
+    $u = $ \textsc{Dequeue} $(Q)$ \;
+    \ForEach{$v \in G.Adj[u]$}{
+      \If{$v.color == $ \textsc{white}}{
+        $v.color = $ \textsc{gray}\;
+        $v.d = v.d + 1$\;
+        $v.\pi = u$\;
+        \textsc{Enqueue} $(Q,v)$\;
+      }
+    }
+    $v.color = $ \textsc{black}\;
+  }
+\end{algorithm}
+
+\columnbreak
+
+\begin{algorithm}[H]
+  \SetAlgoNoEnd\SetAlgoNoLine
+  \SetNlSkip{1.5em}
+  \DontPrintSemicolon
+  \SetKwProg{Fn}{Function}{}{}
+
+  \nonl \textsc{DFS}$(G,s)$
+
+  \ForEach{$u \in G.V$}{
+    $u.color = $ \textsc{white}\;
+    $u.\pi = nil$\;
+  }
+  $time = 0$\;
+  \ForEach{$u \in G.V$}{
+    \If{$u.color == $ \textsc{white}}{
+      \textsc{Dfs-Visit(G,u)}
+    }
+  }
+\end{algorithm}
+
+\begin{algorithm}[H]
+  \SetAlgoNoEnd\SetAlgoNoLine
+  \SetNlSkip{1.5em}
+  \DontPrintSemicolon
+  \SetKwProg{Fn}{Function}{}{}
+
+  \nonl \textsc{DFS-Visit}$(G,u)$
+
+  $time = time + 1$\;
+  $u.d = time$\;
+  $u.color = $\textsc{Gray}\;
+
+  \ForEach{$v \in G.Adj[u]$}{
+    \If{$v.color == $ \textsc{white}}{
+      $v.\pi = u$\;
+      \textsc{Dfs-Visit(G,v)}\;
+    }
+  }
+  $u.color = $\textsc{Black}\;
+  $time = time + 1$\;
+  $u.f = time$\;
+\end{algorithm}
+
+\end{multicols}
+
+
+BFS produce subgraph, corresponding to the $\pi$ (predecessor) attributes.\\
+More formally, for a graph $G=(V,E)$ with source $s$,
+we define the \textbf{predecessor subgraph} of a bread-first search as\\
+
+$G_\pi = (V_\pi, E_\pi)$, where\\
+$V_\pi = \{v \in V: v.\pi \neq \textsc{nil}\} \cup {s}$\\
+and\\
+$E_\pi = \{(v.\pi,v) : v \in V_\pi - \{s\}\}$\\
+
+As soon as graph $G$ is connected(given), thus predecessor subgraph of
+bread-first search forms a \textbf{bread-first tree} for $G$.
+\cite[by Lemma 22.6][page 601]{introtoalg}.\\
+
+In this case $V_\pi = V$ (bread-first search reach all vertices of graph $G$).\\
+
+Let $E_\textsc{Bfs} = E_\pi$ in bread-first search.\\
+
+Unlike breadth-first search, whose predecessor subgraph forms a tree, the
+predecessor subgraph produced by a depth-first search may be composed of several
+trees, because the search may repeat from multiple sources. Therefore, we define
+the \textbf{predecessor subgraph} of a depth-first search slightly differently from that
+of a breadth-first search: we let\\
+
+$G_\pi = (V, E_\pi)$, where\\
+$E_\pi = \{(v.\pi,v) : v \in V_\pi \text{ and } v_\pi \neq \textsc{nil}\}$\\
+
+The predecessor subgraph of depth-first search forms a \textbf{depth-first
+forest} comprising several \textbf{depth-first trees}. But as soon as graph
+$G$ is connected(given), thus predecessor subgraph forms exactly one \textbf{depth-first
+tree}.\\
+
+Let $E_\textsc{Dfs} = E_\pi$ in depth-first search.\\
+
+
+By depth-first search we could classify the edges of the connected undirected graph $G=(V,E)$.
+\cite[Classification of edges][page 609]{introtoalg}. In undirected graph
+\textbf{forward} and \textbf{cross} edges never occurs. \cite[by Theorem
+22.10][page 610]{introtoalg}.\\
+
+Predecessor subgraph of bread-first search and predecessor subgraph of
+depth-first search could be different only in one case, if:\\
+
+$\exists v \in V : e_\textsc{Bfs} \neq e_\textsc{Dfs}$, where\\
+$e_\textsc{Bfs} \in E_\textsc{Bfs}, e_\textsc{Bfs} = (v.\pi, v), v.\pi$ -
+predecessor of $v$ in breadth-first search\\
+$e_\textsc{Dfs} \in E_\textsc{Dfs}, e_\textsc{Dfs} = (v.\pi, v), v.\pi$ -
+predecessor of $v$ in depth-first search\\
+
+This situation could be only if in graph $G$ occurs \textbf{back} edges. But as
+soon as \textsc{Bfs} and \textsc{Dfs} produce same trees, thus all edges in
+$E_\textsc{Dfs}$ is \textbf{tree} edges and presented in both subgraphs
+$E_\textsc{Bfs} = E_\textsc{Dfs} = E$.
+Therefore graph $G = G_\pi$.
+\end{proof}
+
+\begin{remark}[Self-loop]
+Except for one important remark. This is true for simple graphs. But in
+general, undirected connected graph could have self-loops. This edges from
+vertex to itself not present neither in the BFS nor in the DFS.
+\end{remark}
+
+\pagebreak
+\section{Minimum spanning tree}
+
+\begin{theorem}
+  If in weighted undirected graph $G=(V, E, w)$,
+  exists a path between $p$ and $q$ consisting entirely
+  of edges whose cost is smaller than cost of edge $e=(p,q) \in E$, then $e$
+  does not belong to a minimum spanning tree.
+\end{theorem}
+
+\begin{proof}
+
+Firstly lets consider generic method, which grows the minimal spanning tree
+one edge in a time. 
+The generic method manages a set of edges A, maintaining the
+following loop invariant:\\
+
+Prior to each iteration, $A$ is a subset of some minimum spanning tree.\\
+
+At each step, we determine an edge $(u,v)$ that we can add to $A$ without violating
+this invariant, in the sense that $A \cup \{(u,v)\}$ is also a subset of a minimum spanning
+tree. 
+We call such an edge a \textbf{safe edge} for $A$, since we can add it safely to $A$ while
+maintaining the invariant.\\
+
+\IncMargin{1em}
+\begin{algorithm}[H]
+  \SetAlgoNoEnd\SetAlgoNoLine
+  \SetNlSkip{1.5em}
+  \DontPrintSemicolon
+
+  \nonl \textsc{Generic-MST}$(G,w)$
+
+  $A = \emptyset$\;
+  \While {$A$ does not form a spanning tree}{
+    find an edge $(u,v)$ that is safe for $A$\;
+    $A = A \cup \{(u,v)\}$
+  }
+  \Return $A$\;
+\end{algorithm}
+
+\vspace{1em}
+
+We use cut-and-paste method to determine safe edges and grow the spanning tree
+\cite[Theorem 23.1]{introtoalg}.\\
+
+Let $T$ be a minimum spanning tree that includes $A$.
+Consider cut $(S, V - S)$, such that $p$ and $q$ on the opposite
+sides of the cut. As soon as graph $G$ has simple path $\rho$ from $p$ to $q$,
+$\rho \neq (p,q)$, entirely consisting of edges with less cost (given).
+Thus cut cross some edge $e \in \rho$ with less cost than $(p,q)$, which will be
+added in minimum spanning tree $T$, hereby on each iteration to $T$ added edges
+from $\rho$. So path $\rho \in A$ and adding edge $(p,q)$ will produce
+a cycle, what contradicts minimum spanning tree definition. Therefore edge
+$(p,q) \notin T$.
+\end{proof}
+
+\begin{theorem}
+  If in weighted undirected graph $G=(V, E, w)$,
+  edge $e=(p,q) \in E$, does not belong to a minimum spanning tree,
+  then there exists a path between $p$ and $q$ consisting entirely
+  of edges whose cost is smaller or equal cost of $e$.
+\end{theorem}
+
+\begin{proof}
+  Let $T$ be a minimum spanning tree that does not include edge $(p,q)$.
+  Consider arbitrary cut $(S, V - S)$, such that $p$ and $q$ on the opposite
+  sides of the cut. Since $(p,q)$ does not belong to a minimum spanning tree,
+  thus cut cross some edge $e \in T$, such what, $w(e) \leq w(p,q)$. Therefore
+  $\exists \rho = \{e_1, e_2 \dots e_n\} \cup \rho \neq (p,q) $,   
+  such that $\forall e \in \rho : w(e) \leq w(p,q)$.
+\end{proof}
+
+\begin{remark}
+  Theorem 2.2 claims that path $\rho$ could consists of edges with less or equal
+  costs. There is a case in which $(p,q)$ does not belong to a minimal spanning
+  tree, but simple path does not consists of edges which have less cost
+  strictly, ie $\exists e \in \rho : w(e) = w(p,q)$ but in this ties edge
+  $(p,q)$ does not chosen.
+\end{remark}
+  
+\begin{corollary}
+Using the above facts, we can propose an $O(m+n)$ algorithm that checks if a
+given edge $e$ belongs to at least one minimum spanning tree.
+\end{corollary}
+
+We are interested in finding the simple path $\rho$ from $p$ to $q$, not equal
+$\{(p,q)\}$ and consisting 
+entirely from edges with strictly less weight (in case of equal, edge $(p,q)$ could
+be presented in some MST). If this path exists, edge $(p,q)$ couldn't
+belongs to any minimum spanning tree by Theorem 2.1.\\
+
+For finding this path we could use bread-first search with some restrictions on
+weight of the edge between adjacent vertices and not considering of edge $(p,q)$:\\
+
+\IncMargin{1em}
+\begin{algorithm}[H]
+  \SetAlgoNoEnd\SetAlgoNoLine
+  \SetNlSkip{1.5em}
+  \DontPrintSemicolon
+
+  \nonl \textsc{Check-MST}$(G,w,e)$\;
+  $p = e.head$\;
+  $q = e.tail$\;
+  \ForEach{$u \in V - \{p\}$}{
+    $u.color = \textsc{white}$\;
+    $u.\pi = nil$\;
+  }
+  $Q = \emptyset$\;
+  $p.color = \textsc{gray}$\;
+  $p.\pi = \textsc{nil}$\;
+  \textsc{Enqueue} $(Q,p)$\;
+  \While {$Q \neq \emptyset$}{
+    $u = $ \textsc{Dequeue} $(Q)$ \;
+    \ForEach{$v \in G.Adj[u]$}{
+      \If{$(v.color ==  \textsc{white}) \wedge (w(u,v) < w(p,q)) \wedge ((u,v) \neq (p,q))$}{
+        $v.color = $ \textsc{gray}\;
+        $v.\pi = u$\;
+        \If{$v==q$}{
+          \Return doesn't belong to any MST
+          \tcp*{$\exists \rho=\{e_1, e_2 \dots e_n\} : \forall e \in \rho, w(e) < w(p,q)$}
+        }
+        \textsc{Enqueue} $(Q,v)$\;
+      }
+    }
+    $v.color = $ \textsc{black}\;
+  }
+  \Return edge belongs to some MST\;
+\end{algorithm}
+
+\vspace{1em}
+Consider algorithm complexity - while loop iterates maximum $|V|-1$ times (minus one for head
+$p$ of edge). Nested loop ``for each'' iterates maximum $|E|-1$ times (one for $(p,q)$ edge).
+So total complexity $O(|V|+|E|)$.
+
+
+\pagebreak
+\section{Network flow}
+
+\begin{theorem}
+  For flow network $G = (V,E)$, in which each edge $(u,v) \in E$ has non-negative
+  integer capacity $c(u,v) \geq 0$, maximum flow is an integer.
+\end{theorem}
+
+\begin{proof}
+  By Max-flow min-cut theorem \cite[Theorem 26.6][page 723]{introtoalg}\\
+  If $f$ is a flow in a flow network $G = (V,E)$ with source $s$ and sink $t$, then the
+  following conditions are equivalent:
+
+  \begin{enumerate}
+    \item $f$ is a maximum flow in $G$.
+    \item The residual network $G_f$ contains no augmenting paths.
+    \item $|f| = c(S,T)$ for some cut $(S,T)$ of $G$, where
+  \end{enumerate}
+  $$c(S,T) = \sum_{u \in S} \sum_{v \in T} c(u,v)$$
+
+  As soon as integer set is closed under the operation of addition, thus
+  $c(S,T)$ is integer and maximum flow in a flow network $G$ is integer as well. 
+\end{proof}
+
+\begin{theorem}
+  For flow network $G = (V,E)$, in which each edge $(u,v) \in E$ has non-negative
+  integer capacity $c(u,v) \geq 0$, if $C=\sum\{c(s,q)|q \in V\}$,
+  then the Ford-Fulkerson algorithm runs in time $O(C \cdot m)$, where m is the number of edges.
+\end{theorem}
+
+\begin{proof}
+
+\cite[Analysis of Ford-Fulkerson algorithm][page 725]{introtoalg}\\
+
+Consider Ford-Fulkerson algorithm:\\
+
+\IncMargin{1em}
+\begin{algorithm}[H]
+  \SetAlgoNoEnd\SetAlgoNoLine
+  \SetNlSkip{1.5em}
+  \DontPrintSemicolon
+
+  \nonl \textsc{Ford-Fulkerson}$(G,s,t)$\;
+  \ForEach{$edge (u,v) \in G.E$}{
+    $(u,v).f = 0$\;
+  }
+
+  \While {there exists a path $\rho$ from $s$ to $t$ in residual network $G_f$}{
+    $c_f(\rho) = \text{min}\{c_f(u,v):(u,v) is in \rho\}$
+    \ForEach{$edge (u,v) \in \rho$}{
+      \eIf{$(u,v) \in E$}{
+        $(u,v).f = (u,v).f + c_f(\rho)$
+      }{
+        $(v,u).f = (v,u).f - c_f(\rho)$
+      }
+    }
+  }
+  \Return edge belongs to some MST\;
+\end{algorithm}
+
+\vspace{1em}
+
+As soon as $C$ represent bound of maximum flow in cut $(S,T)$, where
+$S=\{s\}$, thus maximum flow less or equal $C$. Therefore a straightforward
+implementation executes the \textbf{while} loop of lines 3-8 at most $C$ times,
+since the flow value increases by at least one unit in each iteration.
+We can perform the work done within the \textbf{while} loop efficiently if we implement
+the flow network $G=(V,E)$ with the right data structure and find an augmenting
+path by a linear-time algorithm.
+Let us assume that we keep a data structure corresponding to a directed graph
+$G^\prime=(V,E^\prime)$, where $E^\prime=\{(u,v):(u,v) \in E \text{ or } (v,u)
+\in E\}$. Edges in the network $G$ are also edges in $G^\prime$, and therefore we can
+easily maintain capacities and flows in this data structure.
+Given a flow $f$ on $G$,
+the edges in the residual network $G$ $f$ consist of all edges $G_f$ such that
+$c_f(u,v) > 0$, where $c_f$ conforms to equation:
+
+$c_f = 
+\begin{cases}
+  c(u,v)-f(u,v) & \text{if } (u,v) \in E \\
+  f(v,u)        & \text{if } (v,u) \in E \\
+  0             & \text{otherwise} \\
+\end{cases}
+$
+
+The time to find a path in a residual network is therefore $O(|V| + |E^\prime|)$
+if we use either depth-first search or breadth-first search. Each iteration of
+the \textbf{while} loop thus takes $O(|E|)$ time, as does the initialization in lines
+1–2, making the total running time of the \textsc{Ford-Fulkerson} algorithm
+$O(|E| \cdot C)$ 
+\end{proof}
+
+\textbf{Exercise 3.2} Phones and base-stations
+
+Naive algorithm for solving this problem - for each base-station $i \in K$ calculate
+distances to phone $j \in N$, then push to max-heap of station $i$ by
+distance (except those what are further than max-distance $D$).
+
+The worst case - $O(K \cdot N \cdot \text{log} N)$.
+
+Then, for each station $i$ take one phone $j$ from top of heap and mark phones as
+connected. If phone was already connected just take next one (in the worst case
+this gives another multiplication by K in complexity). Repeat until load-factor of
+stations reaches the limit (L iterations). Done.
+
+The worst case - $O(K^2 \cdot L \cdot \text{log} N)$.
+
+But this algorithm doesn't connect all possible clients.\\
+
+Another naive algorithm for solving this problem - for each phone/station construct
+reachable matrix with total count of reachable station.\\
+
+\begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+        & $s_1$ & $s_2$ & $\dots$ & $s_n$ & total\\
+  \hline
+  $p_1$ & 0 & 1 & \dots & 1 & 2\\
+  $p_2$ & 0 & 1 & \dots & 0 & 1\\
+  \dots & \dots & \dots & \dots & \dots & \dots\\
+  $p_n$ & 1 & 0 & \dots & 0 & k\\
+  \hline
+\end{tabular}\\
+
+Time complexity $O(N \cdot K)$, space complexity $O(N \cdot K)$.\\
+
+Then construct order min-heap by count of reachable stations.
+
+Time complexity $O(N \text{ log}N)$, space complexity $O(N)$.\\
+
+Then extract phone and connect to not fully load station.
+
+Time complexity $O(N \text{ log}N \cdot K)$ (another multiplication from search
+and check of available station in array)\\
+
+This one should provide a better result.\\
+
+\bibliography{hw1}
+
+\end{document}
