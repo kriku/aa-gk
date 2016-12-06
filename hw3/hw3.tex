@@ -1,0 +1,227 @@
+\newcount\draft\draft=1 % set to 0 for "publication"
+
+\documentclass{article}
+\usepackage[a4paper]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+% \usepackage[in]{fullpage}
+
+% \usepackage{natbib}
+\bibliographystyle{abbrv}
+
+\usepackage{enumitem}
+
+\usepackage[table,svgnames]{xcolor}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{pdflscape}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=FireBrick,
+    citecolor=FireBrick,
+    urlcolor=FireBrick
+}
+
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\usepackage[linesnumbered]{algorithm2e}
+\let\oldnl\nl
+\newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}
+
+\setlength\parindent{0pt}
+
+% \newcommand{\bl}[2][c]{%
+%   \begin{tabular}[#1]{@{ }c@{ }}#2\end{tabular}}
+
+\newcommand{\this}{\cellcolor{BlanchedAlmond}}
+\newcommand{\that}{\cellcolor{Gainsboro}}
+\newcommand{\look}{\color{FireBrick}}
+\newcommand{\cell}[4] {{
+  \begin{tabular}{cc}
+    {\color{black!40}#1} & {\color{black!40}#2} \\
+    {\color{black!40}#3} & #4 \\
+  \end{tabular}
+}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem*{remark}{Remark}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{property}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{fact}{Fact}
+
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\usepackage{cleveref} % MUST BE LOADED LAST
+
+\title{Advanced Algorithms for Data Science \\ \textsc{Homework 3}}
+\author{Krikun Gosha}
+\date{ }
+
+\begin{document}
+
+\maketitle
+\section{Dynamic programming}
+\paragraph{Question}
+\textit{Propose an algorithm to compute the optimal shipping schedule, that is
+  an optimal sequence of n choices between A and B generating the minimal
+  cost.}\\ 
+
+This exercise could be reduced to Interval Scheduling Problem. All we need is in
+correct way describe optimal solution function:
+
+$$
+OPT(i) = \textit{min}
+\begin{cases}
+  OPT(i-1) + r \cdot s_i \\
+  OPT(i-4) + c \cdot 4, \text{if } i \geq 4
+\end{cases}
+$$
+
+and $OPT(0) = 0$. First case represent calculation cost by one week (based on
+previous), second case ``replace'' optimal results of 4 previous weeks if it
+have less cost. Second case we can calculate only in comparison with first one,
+so for first three steps we have to conduct costs to compare with.\\
+  
+And for getting the final answer we should make backward induction, from the
+end, to determine a sequence of optimal actions.  
+
+\section{Protein sequence alignment}
+\paragraph{Question}
+\textit{Compute a maximal-score alignment of protein sequences under the scoring
+  matrix BLOSUM62 and the indel penalty d = 8.}\\
+
+Sequences:\\
+
+\texttt{HEAGAWGHEE}\\
+\texttt{PAWHEAE}\\
+
+If I right get the question - we should calculate by hands (or by implementation
+in some programming language). I think I will faster calculate by hands.
+
+\begin{landscape}
+  {
+\setlength\tabcolsep{4pt}
+  % \footnotesize
+\begin{tabular}{c|c|c|c|c|c|c|c|c|c|c|c}
+
+    &     &  H &   E &   A &   G &   A &   W &   G &   H &   E &   E \\
+  \hline
+    &   0 & \this -8 & \that -16 & -24 & -32 & -40 & -48 & -56 & -64 & -72 & -80 \\
+  \hline
+  P &  -8 & \cell{-2}{-16}{-16}{-2} & \this\cell{-9}{-24}{-10}{-9} & \that\cell{\look -17}{-32}{\look -17}{-17} & \that\cell{-26}{-40}{-25}{-25} & \cell{-33}{-48}{-33}{-33} & \cell{-44}{-56}{-41}{-41} & \cell{-50}{-64}{-49}{-49} & \cell{-58}{-72}{-57}{-57} & \cell{-65}{-80}{-65}{-65} & \cell{-73}{-88}{-73}{-73} \\
+  \hline
+  A & -16 & \cell{-10}{-10}{-24}{-10} & \cell{-3}{-17}{-18}{-3} & \this\cell{-5}{-25}{-11}{-5} & \this\cell{-17}{-33}{-13}{-13} & \this\cell{\look -21}{-41}{\look -21}{-21} & \cell{-36}{-49}{-29}{-29} & \cell{-41}{-57}{-37}{-37} & \cell{-51}{-65}{-45}{-45} & \cell{-58}{-73}{-53}{-53} & \cell{-66}{-81}{-61}{-61} \\
+  \hline
+  W & -24 & \cell{-18}{-18}{-32}{-18} & \cell{-13}{-11}{-26}{-11} & \cell{-6}{-13}{-19}{-6} & \cell{-7}{-21}{-18}{-7} & \cell{-16}{-29}{-15}{-15} & \this\cell{-10}{-37}{-25}{-10} & \that\cell{-31}{-45}{-18}{-18} & \cell{-39}{-53}{-26}{-26} & \cell{-48}{-61}{-34}{-34} & \cell{-56}{-69}{-42}{-42} \\
+  \hline
+  H & -32 & \cell{-16}{-26}{-40}{-16} & \cell{-18}{-19}{-24}{-18} & \cell{-13}{-14}{-26}{-13} & \cell{-8}{-15}{-21}{-8} & \cell{-9}{-23}{-16}{-9} & \cell{-17}{-18}{-17}{-17} & \this\cell{-12}{-26}{-25}{-12} & \that\cell{-10}{-34}{-20}{-10} & \cell{-26}{-42}{-18}{-18} & \cell{-34}{-50}{-26}{-26} \\
+  \hline
+  E & -40 & \cell{-32}{-24}{-48}{-24} & \cell{-11}{-26}{-32}{-11} & \cell{-19}{-21}{-19}{-19} & \cell{-15}{-16}{-27}{-15} & \cell{-9}{-17}{-23}{-9} & \cell{-14}{-25}{-17}{-14} & \cell{-19}{-20}{-22}{-19} & \this\cell{-12}{-18}{-27}{-12} & \that\cell{-5}{-26}{-20}{-5} & \cell{-13}{-32}{-13}{-13} \\
+  \hline
+  A & -48 & \cell{-42}{-32}{-56}{-32} & \cell{-25}{-19}{-40}{-19} & \cell{-7}{-27}{-27}{-7} & \cell{-19}{-23}{-15}{-15} & \cell{-11}{-17}{-23}{-11} & \cell{-12}{-22}{-19}{-12} & \cell{-14}{-27}{-20}{-14} & \cell{-21}{-20}{-22}{-20} & \this\cell{\look -13}{\look -13}{-28}{-13} & \cell{-6}{-21}{-21}{-6} \\
+  \hline
+  E & -56 & \cell{-48}{-40}{-64}{-40} & \cell{-27}{-27}{-48}{-27} & \cell{-20}{-15}{-35}{-15} & \cell{-9}{-23}{-23}{-9} & \cell{-16}{-19}{-17}{-16} & \cell{-14}{-20}{-24}{-14} & \cell{-14}{-22}{-22}{-14} & \cell{-14}{-28}{-22}{-14} & \cell{-15}{-21}{-22}{-15} & \this\cell{-8}{-14}{-23}{-8} \\
+\end{tabular}
+}\\[2em]
+
+Each cell in table consists of 4 values (this will help us do backward induction):\\
+
+\cell{
+  $Score_{(i-1, j-1)} + s(S_i,T_i)$
+}{
+  $Score_{(i, j-1)} - d$
+}{
+  $Score_{(i-1, j)} - d$
+}{
+  maximal between all three
+}\\[1em]
+
+I done backward induction with coloring cells (different ways in different
+colors) and stressed {\look forks} with red color.
+
+So this sequences could be align with same score by 6 different ways:\\
+
+\texttt{
+  \begin{tabular}{cccccccccc}
+  H & E & A & G & A & W & G & H & E & E \\
+    &   & | &   &   & | &   &   &   & | \\
+    & P & A &   &   & W & H & E & A & E \\
+  \end{tabular}
+}\\[1em]
+Score: $-8 + -1 + 4 + -8 + -8 + 11 + -2 + 0 + -1 + 5 = -8$\\[1em]
+
+\end{landscape}
+
+
+\texttt{
+  \begin{tabular}{ccccccccccc}
+  H & E & A & G & A & W & G & H & E &   & E \\
+    &   & | &   &   & | &   & | & | &   & | \\
+    & P & A &   &   & W &   & H & E & A & E \\
+  \end{tabular}
+}\\[1em]
+Score: $-8 + -1 + 4 + -8 + -8 + 11 + -8 + 8 + 5 + -8 + 5 = -8$\\[1em]
+
+\texttt{
+  \begin{tabular}{cccccccccc}
+  H & E & A & G & A & W & G & H & E & E \\
+    &   &   &   & | & | &   &   &   & | \\
+    & P &   &   & A & W & H & E & A & E \\
+  \end{tabular}
+}\\[1em]
+Score: $-8 + -1 + -8 + -8 + 4 + 11 + -2 + 0 + -1 + 5 = -8$\\[1em]
+
+\texttt{
+  \begin{tabular}{ccccccccccc}
+  H & E & A & G & A & W & G & H & E &   & E \\
+    &   &   &   & | & | &   & | & | &   & | \\
+    & P &   &   & A & W &   & H & E & A & E \\
+  \end{tabular}
+}\\[1em]
+Score: $-8 + -1 + -8 + -8 + 4 + 11 + -8 + 8 + 5 + -8 + 5 = -8$\\[1em]
+
+\texttt{
+  \begin{tabular}{cccccccccc}
+  H & E & A & G & A & W & G & H & E & E \\
+    &   &   &   & | & | &   &   &   & | \\
+    &   & P &   & A & W & H & E & A & E \\
+  \end{tabular}
+}\\[1em]
+Score: $-8 + -8 + -1 + -8 + 4 + 11 + -2 + 0 + -1 + 5 = -8$\\[1em]
+
+\texttt{
+  \begin{tabular}{ccccccccccc}
+  H & E & A & G & A & W & G & H & E &   & E \\
+    &   &   &   & | & | &   & | & | &   & | \\
+    &   & P &   & A & W &   & H & E & A & E \\
+  \end{tabular}
+}\\[1em]
+Score: $-8 + -8 + -1 + -8 + 4 + 11 + -8 + 8 + 5 + -8 + 5 = -8$\\[1em]
+
+\section{Hidden Markov Models}
+\paragraph{Question}
+\textit{Finish the example of the Forward-Backward algorithm that we didn’t
+  finish in class.}\\
+
+Two hidden states: raining, not-raining\\
+Probabilities to stay in the same state is 0.7, to change 0.3\\
+Probabilities modelling the person's behaviour:\\
+
+\begin{tabular}{|l|c|c|}
+  \hline
+    & umbrella & no umbrella \\
+  \hline
+  raining & 0.9 & 0.1 \\
+  \hline
+  not raining & 0.2 & 0.8 \\
+  \hline
+\end{tabular}
+
+\end{document}
