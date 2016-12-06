@@ -257,7 +257,7 @@ And initial state probability matrix (suppose all states equiprobable) $I=p_0(k)
 $$
 I =
 \begin{pmatrix}
-  0.5 & 0.5 \\ 0.5 & 0.5
+  0.5 \\ 0.5 
 \end{pmatrix}
 $$
 
@@ -281,18 +281,20 @@ Lets compute forward and backward probabilities:\\
 
 $ f_{not \ raining}(2) = 0.2 \cdot (0.5 \cdot 0.2 \cdot 0.7 + 0.5 \cdot 0.9
 \cdot 0.3) = 0.041 $\\
-$ b_{not \ raining}(2) = (0.7 \cdot 0.8 + 0.3 \cdot 0.1) = 0.59$\\
+$ b_{not \ raining}(2) = (0.7 \cdot 0.8 + 0.3 \cdot 0.1) = 0.59$
+{\color{black!40} -- base case}\\
 
 $ f_{raining}(2) = 0.9 \cdot (0.5 \cdot 0.9 \cdot 0.7 + 0.5 \cdot 0.2
 \cdot 0.3) = 0.405$\\
-$ b_{raining}(2) = (0.7 \cdot 0.1 + 0.3 \cdot 0.8) = 0.31$\\
+$ b_{raining}(2) = (0.7 \cdot 0.1 + 0.3 \cdot 0.8) = 0.31$
+{\color{black!40} -- base case}\\
 
 And lets recover $P(x)$ from
 $\sum_{k}{P(\pi_i=k|x)} = 1$
 then:
-$\frac{0.041 \cdot 0.59}{P(x)} + \frac{0.405 \cdot 0.31}{P(x)} = 1$\\
+$\frac{0.041 \cdot 0.59}{P(2)} + \frac{0.405 \cdot 0.31}{P(2)} = 1$\\
 then:
-$P(x) = 0.041 \cdot 0.59 + 0.405 \cdot 0.31 = 0.14974$\\
+$P(2) = 0.041 \cdot 0.59 + 0.405 \cdot 0.31 = 0.14974$\\
 
 Thus
 $P(\pi_2 = \text{not raining} | \text{umbrella}) = 0.161546681$
